@@ -130,10 +130,16 @@ const GENERIC_PERTURBATIONS: Perturbation[] = [
 ];
 
 /**
- * Suggest three perturbations for a node. Returns the authored set for known
- * canonical events, otherwise three generic fallbacks.
+ * Suggest three perturbations for a node. Preference order:
+ *   1. perturbations authored inline on the event (per-story data)
+ *   2. the engine's PERTURBATIONS map (keyed by event id — Romeo & Juliet)
+ *   3. three generic fallbacks
  */
 export function suggestPerturbations(story: Story, nodeId: string): Perturbation[] {
+  const event = eventById(story, nodeId);
+  const inline = event?.perturbations;
+  if (inline && inline.length >= 3) return inline.slice(0, 3);
+
   const authored = PERTURBATIONS[nodeId];
   if (authored && authored.length >= 3) return authored.slice(0, 3);
   return GENERIC_PERTURBATIONS;

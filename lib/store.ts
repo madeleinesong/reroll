@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import type { BranchFilter, RerollConfig, Story } from "@/lib/types";
-import { stories } from "@/lib/stories/romeo-and-juliet";
+import { stories } from "@/lib/stories";
 import { generateBranch } from "@/lib/reroll-engine";
 
 const DEFAULT_STORY_ID = "romeo-and-juliet";

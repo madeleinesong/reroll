@@ -54,6 +54,9 @@ export interface StoryEvent {
 
   /** Terminal = a story ending. Used by compare mode. */
   terminal?: boolean;
+
+  /** Optional per-event suggested perturbations (self-contained stories). */
+  perturbations?: Perturbation[];
 }
 
 export interface Branch {

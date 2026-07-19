@@ -1,7 +1,7 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { storyList } from "@/lib/stories/romeo-and-juliet";
+import { storyList } from "@/lib/stories";
 
 export default function TopBar() {
   const story = useStore((s) => s.story);
