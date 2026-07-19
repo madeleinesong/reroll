@@ -16,19 +16,26 @@ body {
 /* ---------------------------------------------------------------------------
    Entrance animation for freshly generated branch nodes
    --------------------------------------------------------------------------- */
+/*
+ * Uses the individual `translate` property (not `transform`) so the slide
+ * composes with EventNode's inline `transform: scale(...)` for downstream-impact
+ * sizing. No fill-mode: after the entrance the node reverts to its inline
+ * opacity, so the timeline/branch-filter dimming still applies to freshly
+ * generated branches.
+ */
 @keyframes reroll-in {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.96);
+    translate: 0 10px;
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    translate: 0 0;
   }
 }
 
 .reroll-node--enter {
-  animation: reroll-in 0.5s ease both;
+  animation: reroll-in 0.45s ease;
 }
 
 /* ---------------------------------------------------------------------------

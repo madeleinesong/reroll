@@ -66,7 +66,9 @@ export default function Inspector() {
           }
         >
           {isCanonical ? "Canonical" : "Alternate"}
-          <span className="ml-2 text-ink-faint">{branchId}</span>
+          {!isCanonical && (
+            <span className="ml-2 text-ink-faint">{branchId}</span>
+          )}
         </span>
         <button
           type="button"
