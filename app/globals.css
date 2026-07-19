@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-editorial: Georgia, "Times New Roman", serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "SF Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Entrance animation for freshly generated branch nodes
+   --------------------------------------------------------------------------- */
+@keyframes reroll-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reroll-node--enter {
+  animation: reroll-in 0.5s ease both;
+}
+
+/* ---------------------------------------------------------------------------
+   React Flow theming — quiet paper/ink surfaces, sharp 1px lines
+   --------------------------------------------------------------------------- */
+
+/* Hide the default attribution badge */
+.react-flow__attribution {
+  display: none;
+}
+
+/* Dotted background — subtle warm gray on paper */
+.react-flow__background {
+  background-color: #f7f6f2;
+}
+
+.react-flow__background pattern circle {
+  fill: #e7e4dc;
+}
+
+/* Controls — flat paper buttons with thin ink borders */
+.react-flow__controls {
+  box-shadow: 0 1px 2px rgba(31, 29, 24, 0.06), 0 4px 16px rgba(31, 29, 24, 0.08);
+  border: 1px solid #e2ded4;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background-color: #fbfaf7;
+  border-bottom: 1px solid #e2ded4;
+  color: #1f1d18;
+  width: 24px;
+  height: 24px;
+}
+
+.react-flow__controls-button:hover {
+  background-color: #efece4;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+.react-flow__controls-button svg {
+  fill: #1f1d18;
+  max-width: 12px;
+  max-height: 12px;
+}
+
+/* MiniMap — paper panel, thin border */
+.react-flow__minimap {
+  background-color: #fbfaf7;
+  border: 1px solid #e2ded4;
+  border-radius: 2px;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(31, 29, 24, 0.08);
+}
+
+/* Edges default to a muted ink stroke; components override per-edge */
+.react-flow__edge-path {
+  stroke: #8a857b;
+}
+
+/* Selection / focus rings should stay quiet */
+.react-flow__node:focus,
+.react-flow__node:focus-visible {
+  outline: none;
+}
+
+/* Handles — small, unobtrusive; nodes render their own visual state */
+.react-flow__handle {
+  width: 6px;
+  height: 6px;
+  min-width: 6px;
+  min-height: 6px;
+  background-color: #b7b1a5;
+  border: 1px solid #fbfaf7;
+}
+
+/* ---------------------------------------------------------------------------
+   Utilities
+   --------------------------------------------------------------------------- */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
