@@ -52,8 +52,10 @@ including branch generation — runs in the browser against local mock data.
 - **Scrub time** — the bottom slider moves a time cutoff; events after it mute.
 - **Filter** — show *all branches*, *canonical only*, or *the selected branch*.
 - **Compare** — toggle **compare** in the top bar, pick any two terminal nodes,
-  and see endings, character outcomes, world-state differences, canon distance,
-  emotional trajectory, and plausibility side by side.
+  and see their endings, a **story-shape** chart (after Kurt Vonnegut: fortune
+  over time — the two endings share a past, then fork, and where each line ends
+  is its outcome), world-state differences, canon distance, and plausibility
+  side by side.
 - **Reset** — restores the pristine story (drops any generated branches).
 
 ---
