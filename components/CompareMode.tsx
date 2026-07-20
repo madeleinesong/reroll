@@ -19,13 +19,38 @@ import {
 } from "@/lib/story-utils";
 import type { StoryEvent, Story, WorldStateEntry } from "@/lib/types";
 
-const CHARACTERS = ["Romeo", "Juliet", "Mercutio", "Tybalt"] as const;
-
 /** Overall plausibility = product of every edge probability along the path. */
 function pathProbability(story: Story, nodeId: string): number {
   const path = pathTo(story, nodeId);
   return path.reduce((acc, e) => acc * e.probability, 1);
 }
+
+/**
+ * The principal characters to report outcomes for — derived from the story
+ * itself (never hardcoded), so this works for any story. Ranks characters by how
+ * often they appear across the two compared paths and keeps the top few.
+ */
+function principalCharacters(
+  story: Story,
+  leftId: string,
+  rightId: string,
+): string[] {
+  const counts = new Map<string, number>();
+  for (const id of [leftId, rightId]) {
+    for (const event of pathTo(story, id)) {
+      for (const name of event.charactersInvolved) {
+        counts.set(name, (counts.get(name) ?? 0) + 1);
+      }
+    }
+  }
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 6)
+    .map(([name]) => name);
+}
+
+const DEAD_WORDS = ["dead", "dies", "died", "killed", "slain", "lost", "drown", "perish", "executed", "murdered"];
+const ALIVE_WORDS = ["alive", "survive", "living", "lives", "saved", "rescued", "spared", "endure"];
 
 /** Map a cumulative path probability to a coarse plausibility label. */
 function plausibilityLabel(p: number): { label: string; alt: boolean } {
@@ -34,26 +59,23 @@ function plausibilityLabel(p: number): { label: string; alt: boolean } {
   return { label: "tenuous", alt: true };
 }
 
-/** Scan a final world state for each principal character's fate. */
+/** Scan a final world state for each named character's fate. */
 function characterFates(
   worldState: WorldStateEntry[],
+  names: string[],
 ): { name: string; fate: string }[] {
-  return CHARACTERS.map((name) => {
+  return names.map((name) => {
+    const needle = name.toLowerCase();
     const hit = worldState.find(
       (entry) =>
-        entry.key.toLowerCase().includes(name.toLowerCase()) ||
-        entry.value.toLowerCase().includes(name.toLowerCase()),
+        entry.key.toLowerCase().includes(needle) ||
+        entry.value.toLowerCase().includes(needle),
     );
     let fate = "unresolved";
     if (hit) {
       const hay = (hit.key + " " + hit.value).toLowerCase();
-      if (hay.includes("dead") || hay.includes("dies") || hay.includes("killed")) {
-        fate = "dead";
-      } else if (hay.includes("alive") || hay.includes("survives") || hay.includes("living")) {
-        fate = "alive";
-      } else {
-        fate = hit.value;
-      }
+      if (DEAD_WORDS.some((w) => hay.includes(w))) fate = "dead";
+      else if (ALIVE_WORDS.some((w) => hay.includes(w))) fate = "alive";
     }
     return { name, fate };
   });
@@ -157,6 +179,9 @@ export default function CompareMode() {
       ? worldStateDifferences(left.worldState, right.worldState)
       : [];
 
+  const characterNames =
+    left && right ? principalCharacters(story, left.id, right.id) : [];
+
   const selectClass =
     "w-full rounded-sharp border border-paper-line bg-paper px-2 py-1.5 " +
     "font-mono text-xs text-ink focus:border-accent-line focus:outline-none";
@@ -234,7 +259,7 @@ export default function CompareMode() {
 
           {/* Each comparison section is a labelled row spanning both columns. */}
           <ComparisonRow label="Ending" story={story} left={left} right={right} render="ending" />
-          <ComparisonRow label="Character Outcomes" story={story} left={left} right={right} render="fates" />
+          <ComparisonRow label="Character Outcomes" story={story} left={left} right={right} render="fates" characterNames={characterNames} />
 
           {/* World-state differences: full-width shared table. */}
           <div className="grid grid-cols-[180px_1fr] gap-4 border-t border-paper-line pt-6">
@@ -294,18 +319,20 @@ function ComparisonRow({
   left,
   right,
   render,
+  characterNames = [],
 }: {
   label: string;
   story: Story;
   left: StoryEvent;
   right: StoryEvent;
   render: RenderKind;
+  characterNames?: string[];
 }) {
   return (
     <div className="grid grid-cols-[180px_1fr_1fr] gap-4 border-t border-paper-line pt-6">
       <RowLabel>{label}</RowLabel>
-      <Cell story={story} node={left} render={render} />
-      <Cell story={story} node={right} render={render} />
+      <Cell story={story} node={left} render={render} characterNames={characterNames} />
+      <Cell story={story} node={right} render={render} characterNames={characterNames} />
     </div>
   );
 }
@@ -314,10 +341,12 @@ function Cell({
   story,
   node,
   render,
+  characterNames = [],
 }: {
   story: Story;
   node: StoryEvent;
   render: RenderKind;
+  characterNames?: string[];
 }) {
   if (render === "ending") {
     return (
@@ -333,7 +362,14 @@ function Cell({
   }
 
   if (render === "fates") {
-    const fates = characterFates(node.worldState);
+    const fates = characterFates(node.worldState, characterNames);
+    if (fates.length === 0) {
+      return (
+        <span className="font-mono text-micro text-ink-faint">
+          no named characters
+        </span>
+      );
+    }
     return (
       <ul className="space-y-1">
         {fates.map((f) => (
